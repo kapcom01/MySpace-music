@@ -5,6 +5,10 @@
 (function () {
   'use strict';
 
+  // Build identifier — bumped manually before each push so the deployed page
+  // can be cross-checked against the git history. Format: short SHA + ISO date.
+  var BUILD_REVISION = '81ac1b8-2026-07-21';
+
   // CORS proxy adapters, tried in order. Each adapter knows how to build its request URL
   // and how to extract the HTML body from the response. If a proxy is down or rate-limited,
   // we fall through to the next one.
@@ -44,6 +48,11 @@
   var resultsSection = document.getElementById('results-section');
   var resultsList = document.getElementById('results-list');
   var resultsSummary = document.getElementById('results-summary');
+  var revisionEl = document.getElementById('revision');
+
+  // Show the deployed revision in the footer so users can tell at a glance
+  // whether the page they're looking at matches the latest commit.
+  if (revisionEl) revisionEl.textContent = BUILD_REVISION;
 
   function setStatus(message, kind) {
     statusEl.textContent = message || '';
