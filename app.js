@@ -5,14 +5,42 @@
 (function () {
   'use strict';
 
-  // CORS proxy used to fetch MySpace pages from the browser.
-  // allorigins.win wraps any URL with a JSON envelope ({ contents: <html>, status: ... }).
-  var CORS_PROXY = 'https://api.allorigins.win/get?url=';
+  // CORS proxy adapters, tried in order. Each adapter knows how to build its request URL
+  // and how to extract the HTML body from the response. If a proxy is down or rate-limited,
+  // we fall through to the next one.
+  var PROXIES = [
+    {
+      // JSON envelope: { contents: "<html>", status: { http_code: 200 } }
+      name: 'allorigins (json)',
+      urlFor: function (target) { return 'https://api.allorigins.win/get?url=' + encodeURIComponent(target); },
+      extract: function (res) {
+        return res.json().then(function (data) {
+          if (!data || typeof data.contents !== 'string') {
+            throw new Error('unexpected JSON envelope from allorigins');
+          }
+          return data.contents;
+        });
+      }
+    },
+    {
+      // Raw passthrough: response body is the upstream HTML directly.
+      name: 'allorigins (raw)',
+      urlFor: function (target) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target); },
+      extract: function (res) { return res.text(); }
+    },
+    {
+      // Independent proxy with separate infrastructure.
+      name: 'corsproxy.io',
+      urlFor: function (target) { return 'https://corsproxy.io/?' + encodeURIComponent(target); },
+      extract: function (res) { return res.text(); }
+    }
+  ];
 
   var form = document.getElementById('extract-form');
   var urlInput = document.getElementById('profile-url');
   var submitBtn = document.getElementById('submit-btn');
   var statusEl = document.getElementById('status');
+  var troubleshootEl = document.getElementById('troubleshoot');
   var resultsSection = document.getElementById('results-section');
   var resultsList = document.getElementById('results-list');
   var resultsSummary = document.getElementById('results-summary');
@@ -21,6 +49,12 @@
     statusEl.textContent = message || '';
     statusEl.classList.remove('error', 'success');
     if (kind) statusEl.classList.add(kind);
+    // Reset troubleshooting hint on each new attempt; shown only on terminal failure.
+    if (troubleshootEl) troubleshootEl.classList.add('hidden');
+  }
+
+  function showTroubleshoot() {
+    if (troubleshootEl) troubleshootEl.classList.remove('hidden');
   }
 
   function isValidMySpaceUrl(value) {
@@ -45,14 +79,29 @@
   }
 
   async function fetchProfile(url) {
-    var proxyUrl = CORS_PROXY + encodeURIComponent(url);
-    var res = await fetch(proxyUrl, { headers: { 'Accept': 'application/json' } });
-    if (!res.ok) throw new Error('Proxy returned HTTP ' + res.status);
-    var data = await res.json();
-    if (!data || typeof data.contents !== 'string') {
-      throw new Error('Unexpected response from CORS proxy');
+    var errors = [];
+    for (var i = 0; i < PROXIES.length; i++) {
+      var adapter = PROXIES[i];
+      setStatus('Trying CORS proxy (' + (i + 1) + '/' + PROXIES.length + '): ' + adapter.name + '…');
+      try {
+        var res = await fetch(adapter.urlFor(url), { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) {
+          errors.push(adapter.name + ': HTTP ' + res.status);
+          continue;
+        }
+        var html = await adapter.extract(res);
+        if (typeof html === 'string' && html.length > 0) {
+          return { html: html, proxy: adapter.name };
+        }
+        errors.push(adapter.name + ': empty response body');
+      } catch (err) {
+        errors.push(adapter.name + ': ' + (err && err.message ? err.message : String(err)));
+      }
     }
-    return data.contents;
+    var detail = errors.join(' • ');
+    var err = new Error('All CORS proxies failed (' + detail + ')');
+    err.detail = detail;
+    throw err;
   }
 
   function renderResults(songs) {
@@ -116,18 +165,20 @@
     submitBtn.disabled = true;
     setStatus('Fetching profile via CORS proxy…');
     try {
-      var html = await fetchProfile(url);
-      setStatus('Parsing ' + html.length.toLocaleString() + ' characters of HTML…');
-      var songs = window.HtmlParser.parse(html);
+      var result = await fetchProfile(url);
+      setStatus('Loaded ' + result.html.length.toLocaleString() + ' characters via ' + result.proxy + '. Parsing…');
+      var songs = window.HtmlParser.parse(result.html);
       resultsSection.classList.remove('hidden');
       renderResults(songs);
       if (songs.length) {
-        setStatus('Done — ' + songs.length + ' song' + (songs.length === 1 ? '' : 's') + ' found.', 'success');
+        setStatus('Done — ' + songs.length + ' song' + (songs.length === 1 ? '' : 's') + ' found (via ' + result.proxy + ').', 'success');
       } else {
-        setStatus('No songs found on this profile.', 'error');
+        setStatus('No songs found on this profile (loaded via ' + result.proxy + ').', 'error');
+        showTroubleshoot();
       }
     } catch (err) {
-      setStatus('Failed to fetch MySpace profile: ' + (err && err.message ? err.message : err), 'error');
+      setStatus('Failed to fetch MySpace profile: ' + (err && err.message ? err.message : String(err)), 'error');
+      showTroubleshoot();
     } finally {
       submitBtn.disabled = false;
     }
