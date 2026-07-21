@@ -147,7 +147,8 @@
     resultsSummary.textContent = 'Found ' + songs.length + ' song' + (songs.length === 1 ? '' : 's') + '.';
     var frag = document.createDocumentFragment();
     songs.forEach(function (song) {
-      var link = window.MusicServices.buildLink(song, fallbackArtist);
+      var youTubeLink = window.MusicServices.buildLink(song, fallbackArtist);
+      var downloadLink = window.MusicServices.buildDownloadLink(song, fallbackArtist);
       var li = document.createElement('li');
       li.className = 'song';
 
@@ -165,12 +166,15 @@
 
       var linksEl = document.createElement('div');
       linksEl.className = 'service-links';
-      var a = document.createElement('a');
-      a.href = link.href;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.textContent = (link.icon ? link.icon + ' ' : '') + link.name;
-      linksEl.appendChild(a);
+      [youTubeLink, downloadLink].forEach(function (link) {
+        var a = document.createElement('a');
+        a.href = link.href;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = (link.icon ? link.icon + ' ' : '') + link.name;
+        if (link.id === 'download') a.classList.add('download');
+        linksEl.appendChild(a);
+      });
       li.appendChild(linksEl);
       frag.appendChild(li);
     });

@@ -5,29 +5,30 @@ A browser-based music discovery and metadata aggregation tool for MySpace profil
 ## Features
 
 ✅ **Privacy-First**: All processing happens in your browser - no data sent to external servers  
-✅ **Legal & Ethical**: Links only to official streaming services (Spotify, YouTube Music, Apple Music, etc.)  
-✅ **No Download Button**: This is a discovery tool, not a downloader  
-✅ **Multiple Streaming Platforms**: Search on Spotify, YouTube Music, Apple Music, SoundCloud, Bandcamp, Tidal, and YouTube  
+✅ **YouTube Search**: Each discovered song links to its YouTube search results page  
+✅ **Download Button**: Each song also has a Download button that opens a third-party YouTube-to-MP3 service with the song query pre-filled. The user is responsible for respecting copyright and the terms of those third-party services.  
 ✅ **Browser-Based**: No installation required - runs entirely in your web browser  
 ✅ **GitHub Pages Ready**: Deploy directly to GitHub Pages
 
 ## How to Use
 
-1. Visit: [GitHub Pages URL will be available after enabling Pages]
+1. Visit: <https://kapcom01.github.io/MySpace-music/>
 2. Paste a MySpace music profile URL (e.g., `https://myspace.com/username/music/songs`)
 3. Click "Extract Metadata"
 4. Browse the discovered songs
-5. Click any streaming service link to search for that song on official platforms
+5. For each song, click either:
+   - **▶️ YouTube** — search YouTube for `song name - artist`
+   - **⬇️ Download** — open a third-party YouTube-to-MP3 service with the query pre-filled
 
 ## Supported Streaming Services
 
-- 🎵 **Spotify** - https://open.spotify.com
-- ▶️ **YouTube Music** - https://music.youtube.com
-- 🍎 **Apple Music** - https://music.apple.com
-- ▶️ **YouTube** - https://youtube.com
-- ☁️ **SoundCloud** - https://soundcloud.com
-- 🎶 **Bandcamp** - https://bandcamp.com
-- 🌊 **Tidal** - https://tidal.com
+- ▶️ **YouTube** - https://youtube.com (search results page per song)
+
+## Download
+
+Each song has a Download button that opens a third-party YouTube-to-MP3 service with the song query pre-filled. You can also right-click any video on the YouTube search page and use your browser's "Save video as…" option.
+
+**The user is responsible for respecting copyright and the terms of any third-party download service.**
 
 ## Deployment
 
@@ -65,18 +66,21 @@ npx http-server
 ### How It Works
 
 1. User provides a MySpace profile URL
-2. App fetches the page using a CORS proxy (allorigins.win)
+2. App fetches the page via a fallback chain of public CORS proxies (allorigins JSON, allorigins raw, corsproxy.io)
 3. HTML parser extracts song metadata using multiple strategies:
    - Audio element detection
    - Data attributes parsing
    - JSON-LD structured data
    - Text pattern analysis
 4. Results are deduplicated and displayed
-5. User can click service links to search on official platforms
+5. For each song the user gets:
+   - A YouTube search button (format: `song name - artist`)
+   - A Download button that opens a third-party YouTube-to-MP3 service
+   - If the parser didn't extract an artist, the MySpace URL username is used as a fallback
 
 ## CORS Proxy
 
-This app uses [allorigins.win](https://allorigins.win/) for CORS support. This is a public, free service that allows fetching cross-origin content in the browser.
+This app tries a fallback chain of public CORS proxies — [allorigins.win](https://allorigins.win/) (JSON + raw endpoints) and [corsproxy.io](https://corsproxy.io/) — to fetch the MySpace profile HTML. If one proxy is down or rate-limited, the next one is tried automatically.
 
 ## Privacy & Data
 
@@ -88,14 +92,14 @@ This app uses [allorigins.win](https://allorigins.win/) for CORS support. This i
 
 ## Legal
 
-This tool is for music discovery and metadata aggregation only. It:
+This tool extracts publicly visible song metadata from MySpace profiles and links to external services (YouTube search, third-party YouTube-to-MP3 converters).
 
 - ✅ Extracts publicly visible song metadata
-- ✅ Links to official, licensed streaming services
-- ✅ Does NOT download, store, or distribute music
-- ✅ Respects artist and label rights
+- ✅ Links to YouTube search results
+- ⚖️ Downloads go through third-party services — the user is responsible for respecting copyright, applicable laws, and the terms of those services
+- ❌ This project does not host, store, or distribute any music or video files
 
-Users can then discover and support artists by listening on their preferred authorized streaming platform.
+Support artists by purchasing their music or listening on authorized platforms whenever possible.
 
 ## Browser Support
 
@@ -113,9 +117,9 @@ MIT License - Feel free to fork, modify, and deploy!
 Contributions are welcome! To improve:
 
 - Better HTML parsing strategies
-- Additional music service links
 - UI/UX improvements
 - Bug fixes
+- Additional or alternative download-service integrations
 
 Please open an issue or submit a pull request.
 
