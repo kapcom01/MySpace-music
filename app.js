@@ -7,7 +7,7 @@
 
   // Build identifier — bumped manually before each push so the deployed page
   // can be cross-checked against the git history. Format: short SHA + ISO date.
-  var BUILD_REVISION = '00ad991-2026-07-21';
+  var BUILD_REVISION = '43f7722-2026-07-21';
 
   // CORS proxy adapters, tried in order. Each adapter knows how to build its request URL
   // and how to extract the HTML body from the response. If a proxy is down or rate-limited,
