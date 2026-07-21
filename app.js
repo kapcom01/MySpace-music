@@ -10,14 +10,14 @@
   // query string on HTML asset URLs consistent; that commit changes only stamps, not code.
   //
   // Stamp workflow:
-  //   1. Write code, leave 'd5fa7cd-2026-07-21' placeholders in index.html ?v= URLs and
+  //   1. Write code, leave '__REVISION__' placeholders in index.html ?v= URLs and
   //      in BUILD_REVISION here.
   //   2. git add -A && git commit -m "feat: ..."     (creates commit C)
   //   3. sed C's short SHA into both placeholders.
   //   4. git commit -am "Stamp build: <C-short>"     (creates commit S on top of C)
   //
   // After this, the footer reads <C-short> and matches the code-bearing commit in `git log`.
-  var BUILD_REVISION = '43f7722-2026-07-21';
+  var BUILD_REVISION = 'd5fa7cd-2026-07-21';
 
   // CORS proxy adapters, tried in order. Each adapter knows how to build its request URL
   // and how to extract the HTML body from the response. If a proxy is down or rate-limited,
