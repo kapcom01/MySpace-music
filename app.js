@@ -69,6 +69,21 @@
     }
   }
 
+  // Extract the username segment from a MySpace profile URL.
+  // Examples:
+  //   https://myspace.com/rot1com/music/songs -> "rot1com"
+  //   https://myspace.com/rot1com             -> "rot1com"
+  //   https://myspace.com/                    -> ""
+  function getUsernameFromUrl(value) {
+    try {
+      var u = new URL(value);
+      var parts = u.pathname.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+      return parts.length ? parts[0] : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
   function escapeHtml(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;')
@@ -104,7 +119,7 @@
     throw err;
   }
 
-  function renderResults(songs) {
+  function renderResults(songs, fallbackArtist) {
     resultsList.innerHTML = '';
     if (!songs.length) {
       resultsSummary.textContent = 'No songs found. The profile may not have publicly visible music.';
@@ -113,7 +128,7 @@
     resultsSummary.textContent = 'Found ' + songs.length + ' song' + (songs.length === 1 ? '' : 's') + '.';
     var frag = document.createDocumentFragment();
     songs.forEach(function (song) {
-      var links = window.MusicServices.buildLinks(song);
+      var link = window.MusicServices.buildLink(song, fallbackArtist);
       var li = document.createElement('li');
       li.className = 'song';
 
@@ -121,23 +136,22 @@
       heading.textContent = song.title || '(untitled)';
       li.appendChild(heading);
 
-      if (song.artist) {
+      var shownArtist = song.artist || fallbackArtist;
+      if (shownArtist) {
         var artistEl = document.createElement('p');
         artistEl.className = 'artist';
-        artistEl.textContent = song.artist;
+        artistEl.textContent = shownArtist + (song.artist ? '' : ' (from profile)');
         li.appendChild(artistEl);
       }
 
       var linksEl = document.createElement('div');
       linksEl.className = 'service-links';
-      links.forEach(function (l) {
-        var a = document.createElement('a');
-        a.href = l.href;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.textContent = (l.icon ? l.icon + ' ' : '') + l.name;
-        linksEl.appendChild(a);
-      });
+      var a = document.createElement('a');
+      a.href = link.href;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = (link.icon ? link.icon + ' ' : '') + link.name;
+      linksEl.appendChild(a);
       li.appendChild(linksEl);
       frag.appendChild(li);
     });
@@ -168,8 +182,9 @@
       var result = await fetchProfile(url);
       setStatus('Loaded ' + result.html.length.toLocaleString() + ' characters via ' + result.proxy + '. Parsing…');
       var songs = window.HtmlParser.parse(result.html);
+      var fallbackArtist = getUsernameFromUrl(url);
       resultsSection.classList.remove('hidden');
-      renderResults(songs);
+      renderResults(songs, fallbackArtist);
       if (songs.length) {
         setStatus('Done — ' + songs.length + ' song' + (songs.length === 1 ? '' : 's') + ' found (via ' + result.proxy + ').', 'success');
       } else {
