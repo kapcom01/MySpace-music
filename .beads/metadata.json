@@ -1,0 +1,9 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "myspace_music_5b2ba88b",
+  "project_id": "ab7147c5-df90-4d87-bffb-6fbb72b3cd62",
+  "global_dolt_database": "beads_global",
+  "global_project_id": "00000000-0000-0000-0000-000000000000"
+}
