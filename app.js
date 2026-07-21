@@ -10,7 +10,7 @@
   // query string on HTML asset URLs consistent; that commit changes only stamps, not code.
   //
   // Stamp workflow:
-  //   1. Write code, leave '__REVISION__' placeholders in index.html ?v= URLs and
+  //   1. Write code, leave 'd5fa7cd-2026-07-21' placeholders in index.html ?v= URLs and
   //      in BUILD_REVISION here.
   //   2. git add -A && git commit -m "feat: ..."     (creates commit C)
   //   3. sed C's short SHA into both placeholders.
