@@ -30,6 +30,15 @@
       </form>
       <p class="hint">Example: <code>https://myspace.com/myspace/music/songs</code></p>
       <div id="status" class="status" role="status" aria-live="polite"></div>
+      <details id="troubleshoot" class="troubleshoot hidden">
+        <summary>Why might this fail?</summary>
+        <ul>
+          <li>The profile URL may be private, deleted, or mistyped.</li>
+          <li>Public CORS proxies (allorigins, corsproxy) occasionally go down or rate-limit.</li>
+          <li>MySpace itself may be temporarily unreachable.</li>
+          <li>Try again in a minute, or try a different MySpace profile URL.</li>
+        </ul>
+      </details>
     </section>
 
     <section id="results-section" class="card hidden" aria-labelledby="results-heading">
