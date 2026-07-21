@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Browser-based music discovery and metadata aggregation tool for MySpace profiles. Discover songs on official streaming platforms." />
+  <title>Music Discovery Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>🎵 Music Discovery Hub</h1>
+    <p class="tagline">Extract song metadata from MySpace profiles and discover them on official streaming platforms.</p>
+  </header>
+
+  <main class="container">
+    <section class="card" aria-labelledby="extract-heading">
+      <h2 id="extract-heading">Step 1 — Provide a MySpace profile URL</h2>
+      <form id="extract-form" novalidate>
+        <label for="profile-url" class="visually-hidden">MySpace profile URL</label>
+        <input
+          id="profile-url"
+          name="profile-url"
+          type="url"
+          placeholder="https://myspace.com/username/music/songs"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="submit-btn">Extract Metadata</button>
+      </form>
+      <p class="hint">Example: <code>https://myspace.com/myspace/music/songs</code></p>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section id="results-section" class="card hidden" aria-labelledby="results-heading">
+      <h2 id="results-heading">Step 2 — Discovered songs</h2>
+      <p id="results-summary" class="muted"></p>
+      <ul id="results-list" class="results-list"></ul>
+    </section>
+
+    <section class="card" aria-labelledby="about-heading">
+      <h2 id="about-heading">About this tool</h2>
+      <ul>
+        <li>🔒 Privacy-first: all processing happens in your browser.</li>
+        <li>⚖️ Legal &amp; ethical: links only to official streaming services.</li>
+        <li>🚫 No download button — this is a discovery tool, not a downloader.</li>
+        <li>🌐 Uses <a href="https://allorigins.win/" target="_blank" rel="noopener noreferrer">allorigins.win</a> as a public CORS proxy.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Made with ❤️ for music discovery. MIT License.</p>
+  </footer>
+
+  <script src="musicServices.js"></script>
+  <script src="htmlParser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
