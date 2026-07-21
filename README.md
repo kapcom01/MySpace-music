@@ -6,7 +6,7 @@ A browser-based music discovery and metadata aggregation tool for MySpace profil
 
 ✅ **Privacy-First**: All processing happens in your browser - no data sent to external servers  
 ✅ **YouTube Search**: Each discovered song links to its YouTube search results page  
-✅ **Download Button**: Each song also has a Download button that opens a third-party YouTube-to-MP3 service with the song query pre-filled. The user is responsible for respecting copyright and the terms of those third-party services.  
+✅ **Download Button**: Each song has a Download button. If the MySpace profile exposes a direct audio URL (via `<audio src="...">` or `<source src="...">`), the button opens that file so the browser can play or save it. Otherwise the button opens the MySpace profile's `/music/songs` page so the song can be picked manually.  
 ✅ **Browser-Based**: No installation required - runs entirely in your web browser  
 ✅ **GitHub Pages Ready**: Deploy directly to GitHub Pages
 
@@ -18,7 +18,7 @@ A browser-based music discovery and metadata aggregation tool for MySpace profil
 4. Browse the discovered songs
 5. For each song, click either:
    - **▶️ YouTube** — search YouTube for `song name - artist`
-   - **⬇️ Download** — open a third-party YouTube-to-MP3 service with the query pre-filled
+   - **⬇️ Download** — open the song's direct audio file (if the profile exposes one) or fall back to the MySpace profile's music page
 
 ## Supported Streaming Services
 
@@ -26,9 +26,12 @@ A browser-based music discovery and metadata aggregation tool for MySpace profil
 
 ## Download
 
-Each song has a Download button that opens a third-party YouTube-to-MP3 service with the song query pre-filled. You can also right-click any video on the YouTube search page and use your browser's "Save video as…" option.
+Each song has a Download button. Behaviour:
 
-**The user is responsible for respecting copyright and the terms of any third-party download service.**
+- **Direct audio URL available**: the button opens the captured audio file URL (`<audio src="...">` or `<source src="...">` from the profile HTML). The browser will play it inline or offer to save it.
+- **No direct URL**: the button opens the MySpace profile's `/music/songs` page so the song can be picked manually.
+
+**The user is responsible for ensuring any music downloaded is royalty-free or otherwise licensed for download.** A license checker is planned but not yet implemented.
 
 ## Deployment
 
@@ -75,7 +78,7 @@ npx http-server
 4. Results are deduplicated and displayed
 5. For each song the user gets:
    - A YouTube search button (format: `song name - artist`)
-   - A Download button that opens a third-party YouTube-to-MP3 service
+   - A Download button that opens the song's direct audio file URL (when the profile exposes one via `<audio src>` / `<source src>`), or falls back to opening the MySpace profile's `/music/songs` page
    - If the parser didn't extract an artist, the MySpace URL username is used as a fallback
 
 ## CORS Proxy
@@ -92,12 +95,13 @@ This app tries a fallback chain of public CORS proxies — [allorigins.win](http
 
 ## Legal
 
-This tool extracts publicly visible song metadata from MySpace profiles and links to external services (YouTube search, third-party YouTube-to-MP3 converters).
+This tool extracts publicly visible song metadata from MySpace profiles and provides Download buttons that open either the profile's direct audio URLs or the MySpace music page.
 
 - ✅ Extracts publicly visible song metadata
 - ✅ Links to YouTube search results
-- ⚖️ Downloads go through third-party services — the user is responsible for respecting copyright, applicable laws, and the terms of those services
-- ❌ This project does not host, store, or distribute any music or video files
+- ✅ Provides direct links to audio files that the profile itself exposes
+- ⚖️ The user is responsible for ensuring any downloaded music is royalty-free or otherwise licensed for download
+- ❌ This project does not host, store, or distribute any music or video files itself
 
 Support artists by purchasing their music or listening on authorized platforms whenever possible.
 

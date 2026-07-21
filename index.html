@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Browser-based music discovery and metadata aggregation tool for MySpace profiles. Discover songs on YouTube." />
   <title>Music Discovery Hub</title>
-  <link rel="stylesheet" href="styles.css?v=d5fa7cd-2026-07-21" />
+  <link rel="stylesheet" href="styles.css?v=__REVISION__" />
 </head>
 <body>
   <header class="site-header">
@@ -51,8 +51,9 @@
       <h2 id="about-heading">About this tool</h2>
       <ul>
         <li>🔒 Privacy-first: all processing happens in your browser.</li>
-        <li>🎵 Each song has a YouTube search button and a Download button (opens a third-party YouTube-to-MP3 service).</li>
-        <li>⚖️ Downloads go through third-party services — the user is responsible for respecting copyright and the terms of those services.</li>
+        <li>🎵 Each song has a YouTube search button and a Download button.</li>
+        <li>⬇️ The Download button opens the song's direct audio URL when the profile exposes one (via <code>&lt;audio src&gt;</code> or <code>&lt;source src&gt;</code>); otherwise it opens the MySpace profile's music page.</li>
+        <li>⚖️ The user is responsible for ensuring any music downloaded is royalty-free or otherwise licensed for download. A license checker is planned.</li>
         <li>🌐 Uses public CORS proxies (allorigins.win, corsproxy.io) with automatic fallback.</li>
       </ul>
     </section>
@@ -63,8 +64,8 @@
     <p class="revision">Revision: <span id="revision">unknown</span></p>
   </footer>
 
-  <script src="musicServices.js?v=d5fa7cd-2026-07-21"></script>
-  <script src="htmlParser.js?v=d5fa7cd-2026-07-21"></script>
-  <script src="app.js?v=d5fa7cd-2026-07-21"></script>
+  <script src="musicServices.js?v=__REVISION__"></script>
+  <script src="htmlParser.js?v=__REVISION__"></script>
+  <script src="app.js?v=__REVISION__"></script>
 </body>
 </html>

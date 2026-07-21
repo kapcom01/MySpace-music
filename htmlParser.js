@@ -26,14 +26,46 @@
   }
 
   // Strategy 1: <audio> and <source> elements with src attributes.
+  // Captures the raw audio URL as `downloadUrl` on each song so the Download
+  // button can open the file directly when the profile exposes one.
   function fromAudioElements(html) {
     var out = [];
-    var audioSrcRe = /<audio[^>]*>[\s\S]*?<\/audio>|<source[^>]*src=["']([^"']+)["'][^>]*>/gi;
+    var seen = {};
+    // Match <audio ...>...</audio> blocks so we can pick up <source src="..."> children.
+    var audioBlockRe = /<audio\b([^>]*)>([\s\S]*?)<\/audio>/gi;
+    var srcAttrRe = /src\s*=\s*["']([^"']+)["']/i;
     var m;
-    while ((m = audioSrcRe.exec(html)) !== null) {
-      var src = m[1] || '';
-      // Audio URLs are often opaque; we don't try to extract titles from them.
-      if (src) out.push({ title: src.split('/').pop() || src, artist: '', source: 'audio' });
+    while ((m = audioBlockRe.exec(html)) !== null) {
+      var attrs = m[1] || '';
+      var inner = m[2] || '';
+      var src = ((attrs.match(srcAttrRe) || [])[1]) || '';
+      if (!src) {
+        var innerMatch = inner.match(/<source\b[^>]*src\s*=\s*["']([^"']+)["']/i);
+        if (innerMatch) src = innerMatch[1];
+      }
+      if (src && !seen[src]) {
+        seen[src] = true;
+        out.push({
+          title: src.split('/').pop() || src,
+          artist: '',
+          downloadUrl: src,
+          source: 'audio'
+        });
+      }
+    }
+    // Also catch standalone <source src="..."> elements outside of <audio>.
+    var sourceRe = /<source[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/gi;
+    while ((m = sourceRe.exec(html)) !== null) {
+      var s = m[1];
+      if (s && !seen[s]) {
+        seen[s] = true;
+        out.push({
+          title: s.split('/').pop() || s,
+          artist: '',
+          downloadUrl: s,
+          source: 'source'
+        });
+      }
     }
     return out;
   }

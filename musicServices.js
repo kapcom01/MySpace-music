@@ -1,17 +1,20 @@
 // musicServices.js
-// Builds a YouTube search URL in the format "song name - artist" and a download URL
-// that opens a third-party YouTube-to-MP3 service with the same query pre-filled.
-// Exposes window.MusicServices with buildLink(song, fallbackArtist)
+// Builds a YouTube search URL in the format "song name - artist" and a MySpace-based
+// download URL. Exposes window.MusicServices with buildLink(song, fallbackArtist)
 // and buildDownloadLink(song, fallbackArtist).
 //
-// Per the user, legal restrictions around downloads are the user's responsibility.
+// Download behaviour:
+//   - If the parser captured a direct audio URL (from <audio src="..."> or
+//     <source src="...">) on the song, the Download button opens that URL —
+//     the browser will play or save the file directly.
+//   - Otherwise the button opens the MySpace profile's /music/songs page so the
+//     user can pick the song manually.
+//
+// Per the user, legal responsibility for the download path (including ensuring
+// the music is royalty-free / licensed) is theirs. A license checker is planned.
 
 (function () {
   'use strict';
-
-  // Public YouTube-to-MP3 service. Users land here, search/select a video, and download.
-  // The `q=` parameter seeds the search box on the converter page when supported.
-  var DOWNLOAD_HOST = 'https://ytmp3.cc/youtube-to-mp3/';
 
   function buildQuery(song, fallbackArtist) {
     var title = (song && (song.title || song.raw)) || '';
@@ -38,13 +41,24 @@
   }
 
   function buildDownloadLink(song, fallbackArtist) {
-    var query = buildQuery(song, fallbackArtist);
-    var href = DOWNLOAD_HOST;
-    if (query) href += '?q=' + encodeURIComponent(query);
+    // Preferred: open a direct audio file URL captured by the parser.
+    if (song && song.downloadUrl) {
+      return {
+        id: 'download',
+        name: 'Download',
+        icon: '⬇️',
+        href: song.downloadUrl
+      };
+    }
+    // Fallback: open the MySpace profile's music page so the user can pick the song.
+    var username = fallbackArtist || (song && song.artist) || '';
+    var href = username
+      ? 'https://myspace.com/' + encodeURIComponent(username) + '/music/songs'
+      : 'https://myspace.com/music';
     return {
       id: 'download',
-      name: 'Download',
-      icon: '⬇️',
+      name: 'MySpace',
+      icon: '🎵',
       href: href
     };
   }
